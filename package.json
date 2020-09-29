@@ -1,0 +1,31 @@
+{
+  "name": "stripe-nodejs",
+  "version": "1.0.0",
+  "description": "testing out the stripe api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daniel Ohn",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "husky": "^4.2.5",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^7.2.4",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "stripe": "^8.49.0"
+  }
+}
