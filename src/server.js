@@ -6,10 +6,10 @@ const app = express()
 const port = process.env.PORT || 3001
 
 const stripe = require("stripe")(process.env.SK_TEST_KEY)
-const sgMail = require("@sendgrid/mail")
+// const sgMail = require("@sendgrid/mail")
 const helmet = require('helmet')
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -35,23 +35,23 @@ app.get("/products/:id", (req, res) => {
   })
 })
 
-app.post("/contact", (req, res) => {
-  const msg = {
-    to: "ba_testing@zohomail.com",
-    from: "ba_testing@zohomail.com",
-    subject: "Sending with Twilio SendGrid is Fun",
-    text: "Wow, we managed to send an email.",
-  }
+// app.post("/contact", (req, res) => {
+//   const msg = {
+//     to: "ba_testing@zohomail.com",
+//     from: "ba_testing@zohomail.com",
+//     subject: "Sending with Twilio SendGrid is Fun",
+//     text: "Wow, we managed to send an email.",
+//   }
 
-  sgMail
-    .send(msg)
-    .then(() => {
-      res.redirect("/")
-    })
-    .catch((err) => {
-      console.log(err.response.body)
-    })
-})
+//   sgMail
+//     .send(msg)
+//     .then(() => {
+//       res.redirect("/")
+//     })
+//     .catch((err) => {
+//       console.log(err.response.body)
+//     })
+// })
 
 app.post("/payment-intent", async (req, res) => {
   let items = req.body
