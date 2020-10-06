@@ -3,15 +3,21 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 
 const app = express()
-const port = 3001
+const port = process.env.PORT || 3001
 
 const stripe = require("stripe")(process.env.SK_TEST_KEY)
 const sgMail = require("@sendgrid/mail")
+const helmet = require('helmet')
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(helmet())
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(''))
+}
 
 app.use(cors({ origin: "http://localhost:3000" }))
 
