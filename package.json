@@ -2,7 +2,7 @@
   "name": "stripe-nodejs",
   "version": "1.0.0",
   "description": "testing out the stripe api",
-  "main": "index.js",
+  "main": "src/server.js",
   "engines": {
     "node": "12.x",
     "npm": "6.x"
