@@ -60,6 +60,7 @@ app.post("/payment-intent", async (req, res) => {
       .create({
         amount: data,
         currency: "usd",
+        payment_method_types: ["card"],
         receipt_email: "ohndaniel@gmail.com",
       })
       .catch((err) => {
