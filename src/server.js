@@ -38,7 +38,6 @@ app.get("/products/:id", (req, res) => {
 //     subject: "Sending with Twilio SendGrid is Fun",
 //     text: "Wow, we managed to send an email.",
 //   }
-
 //   sgMail
 //     .send(msg)
 //     .then(() => {
@@ -48,6 +47,51 @@ app.get("/products/:id", (req, res) => {
 //       console.log(err.response.body)
 //     })
 // })
+
+app.post("/create-checkout-session", async (req, res) => {
+  let items = req.body
+  // let user = req.body;
+
+  // console.log(items)
+  // console.log(user)
+  const itemData = await getProductData(items)
+
+  // itemData.then(data => console.log(data))
+  console.log(itemData)
+
+  // itemData.then((res) => console.log(res[0].price_data.product_data.name))
+
+  // itemData.then((res) => (itemInfo = res))
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: itemData,
+    mode: "payment",
+    success_url: "http://localhost:3000/success",
+    cancel_url: "http://locahost:3000/cancel",
+  })
+
+  console.log(session.id)
+  res.json({ id: session.id })
+})
+
+async function getProductData(items) {
+  return Promise.all(
+    items.map((item) => {
+      // console.log(item)
+      const data = {
+        price_data: {
+          // product: item.productID,
+          currency: "usd",
+          product_data: { name: item.productName },
+          unit_amount: item.price,
+        },
+        quantity: item.qt,
+      }
+      return data
+    })
+  ).then((data) => data)
+}
 
 app.post("/payment-intent", async (req, res) => {
   let items = req.body
