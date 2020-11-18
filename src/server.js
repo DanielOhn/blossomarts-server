@@ -48,33 +48,6 @@ app.get("/products/:id", (req, res) => {
 //     })
 // })
 
-app.post("/create-checkout-session", async (req, res) => {
-  let items = req.body
-  // let user = req.body;
-
-  // console.log(items)
-  // console.log(user)
-  const itemData = await getProductData(items)
-
-  // itemData.then(data => console.log(data))
-  console.log(itemData)
-
-  // itemData.then((res) => console.log(res[0].price_data.product_data.name))
-
-  // itemData.then((res) => (itemInfo = res))
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: itemData,
-    mode: "payment",
-    success_url: "http://localhost:3000/success",
-    cancel_url: "http://locahost:3000/cancel",
-  })
-
-  console.log(session.id)
-  res.json({ id: session.id })
-})
-
 async function getProductData(items) {
   return Promise.all(
     items.map((item) => {
@@ -99,21 +72,26 @@ app.post("/payment-intent", async (req, res) => {
   const getPrices = await getItems(items)
   let total = getTotal(getPrices, items)
 
-  total.then(async (data) => {
-    const paymentIntent = await stripe.paymentIntents
-      .create({
-        amount: data,
-        currency: "usd",
-        payment_method_types: ["card"],
-        receipt_email: "ohndaniel@gmail.com",
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+  const itemData = await getProductData(items)
 
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    })
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: itemData,
+    mode: "payment",
+    success_url: "http://localhost:3000/success",
+    cancel_url: "http://locahost:3000/cancel",
+  })
+
+  console.log("Payment Intent: ", session.payment_intent)
+
+  const paymentIntent = await stripe.paymentIntents.retrieve(
+    session.payment_intent
+  )
+
+  // console.log(testingPayment)
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+    sessionID: session.id,
   })
 })
 
