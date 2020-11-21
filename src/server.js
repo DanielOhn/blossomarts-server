@@ -67,10 +67,11 @@ async function getProductData(items) {
 }
 
 app.post("/payment-intent", async (req, res) => {
-  let items = req.body
+  const domain = process.env.DOMAIN
+  const items = req.body
 
-  const getPrices = await getItems(items)
-  let total = getTotal(getPrices, items)
+  // const getPrices = await getItems(items)
+  // let total = getTotal(getPrices, items)
 
   const itemData = await getProductData(items)
 
@@ -79,18 +80,20 @@ app.post("/payment-intent", async (req, res) => {
     line_items: itemData,
     mode: "payment",
     success_url: "http://localhost:3000/success",
-    cancel_url: "http://locahost:3000/cancel",
+    cancel_url: "http://localhost:3000/cancel",
   })
 
-  console.log("Payment Intent: ", session.payment_intent)
+  // const paymentIntent = await stripe.paymentIntents.retrieve(
+  //   session.payment_intent
+  // )
 
-  const paymentIntent = await stripe.paymentIntents.retrieve(
-    session.payment_intent
-  )
+  // stripe
+  //   .redirectToCheckout({
+  //     sessionId: session.id,
+  //   })
+  //   .then((result) => res.send(result))
 
-  // console.log(testingPayment)
   res.send({
-    clientSecret: paymentIntent.client_secret,
     sessionID: session.id,
   })
 })
