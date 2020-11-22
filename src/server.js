@@ -38,7 +38,6 @@ app.get("/products/:id", (req, res) => {
 //     subject: "Sending with Twilio SendGrid is Fun",
 //     text: "Wow, we managed to send an email.",
 //   }
-
 //   sgMail
 //     .send(msg)
 //     .then(() => {
@@ -49,27 +48,42 @@ app.get("/products/:id", (req, res) => {
 //     })
 // })
 
-app.post("/payment-intent", async (req, res) => {
-  let items = req.body
-
-  const getPrices = await getItems(items)
-  let total = getTotal(getPrices, items)
-
-  total.then(async (data) => {
-    const paymentIntent = await stripe.paymentIntents
-      .create({
-        amount: data,
-        currency: "usd",
-        payment_method_types: ["card"],
-        receipt_email: "ohndaniel@gmail.com",
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-
-    res.send({
-      clientSecret: paymentIntent.client_secret,
+async function getProductData(items) {
+  return Promise.all(
+    items.map((item) => {
+      const data = {
+        price_data: {
+          currency: "usd",
+          product_data: { name: item.productName },
+          unit_amount: item.price,
+        },
+        quantity: item.qt,
+      }
+      return data
     })
+  ).then((data) => data)
+}
+
+app.post("/payment-intent", async (req, res) => {
+  const domain = process.env.DOMAIN
+  const items = req.body
+
+  const itemData = await getProductData(items)
+
+  const session = await stripe.checkout.sessions.create({
+    billing_address_collection: "required",
+    shipping_address_collection: {
+      allowed_countries: ["US"],
+    },
+    payment_method_types: ["card"],
+    line_items: itemData,
+    mode: "payment",
+    success_url: `${domain}/success`,
+    cancel_url: `${domain}/cancel`,
+  })
+
+  res.send({
+    sessionID: session.id,
   })
 })
 
