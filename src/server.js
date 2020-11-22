@@ -51,10 +51,8 @@ app.get("/products/:id", (req, res) => {
 async function getProductData(items) {
   return Promise.all(
     items.map((item) => {
-      // console.log(item)
       const data = {
         price_data: {
-          // product: item.productID,
           currency: "usd",
           product_data: { name: item.productName },
           unit_amount: item.price,
@@ -70,28 +68,19 @@ app.post("/payment-intent", async (req, res) => {
   const domain = process.env.DOMAIN
   const items = req.body
 
-  // const getPrices = await getItems(items)
-  // let total = getTotal(getPrices, items)
-
   const itemData = await getProductData(items)
 
   const session = await stripe.checkout.sessions.create({
+    billing_address_collection: "required",
+    shipping_address_collection: {
+      allowed_countries: ["US"],
+    },
     payment_method_types: ["card"],
     line_items: itemData,
     mode: "payment",
-    success_url: "http://localhost:3000/success",
-    cancel_url: "http://localhost:3000/cancel",
+    success_url: `${domain}/success`,
+    cancel_url: `${domain}/cancel`,
   })
-
-  // const paymentIntent = await stripe.paymentIntents.retrieve(
-  //   session.payment_intent
-  // )
-
-  // stripe
-  //   .redirectToCheckout({
-  //     sessionId: session.id,
-  //   })
-  //   .then((result) => res.send(result))
 
   res.send({
     sessionID: session.id,
